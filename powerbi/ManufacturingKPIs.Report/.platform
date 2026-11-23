@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Report",
+    "displayName": "ManufacturingKPIs",
+    "description": "Plant KPI report: delivery, OEE, scrap and quality."
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "600bc55b-9c28-5ede-a4f6-359d1c2b4d38"
+  }
+}

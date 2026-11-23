@@ -1,0 +1,43 @@
+relationship 0c0d6c78-0dbe-5147-998c-af8b5ec4864d
+	fromColumn: fact_orders.material_id
+	toColumn: dim_material.material_id
+
+relationship e84ddc86-e8ac-5995-afa8-24c57f69ef2d
+	fromColumn: fact_orders.order_date
+	toColumn: dim_date.date
+
+relationship cdd04a9a-ae2e-5151-9775-6c40f011f6b2
+	fromColumn: fact_production.material_id
+	toColumn: dim_material.material_id
+
+relationship fef7498d-b046-5cff-9b8d-a17b9e86e497
+	fromColumn: fact_production.machine_id
+	toColumn: dim_machine.machine_id
+
+relationship 354cec65-f0e8-5e59-989f-16ec981b6f0b
+	fromColumn: fact_production.run_date
+	toColumn: dim_date.date
+
+relationship 869b3662-ab13-50db-9074-5f4c2b3f9dd5
+	fromColumn: fact_inspections.material_id
+	toColumn: dim_material.material_id
+
+relationship f120bdd3-de88-5b8a-88d2-adf711abcd84
+	fromColumn: fact_inspections.machine_id
+	toColumn: dim_machine.machine_id
+
+relationship 8f561d43-7806-5b4f-8a1d-c83ef1ca687f
+	fromColumn: fact_inspections.inspection_date
+	toColumn: dim_date.date
+
+relationship 3a175c48-8421-5ddc-969e-8fb1bf555787
+	fromColumn: fact_complaints.material_id
+	toColumn: dim_material.material_id
+
+relationship 188a8387-c677-50ac-ad50-7f7402868832
+	fromColumn: fact_complaints.complaint_date
+	toColumn: dim_date.date
+
+relationship 9429489a-25f2-5cb0-bc75-35788e041e0e
+	fromColumn: dim_material.supplier_id
+	toColumn: dim_supplier.supplier_id

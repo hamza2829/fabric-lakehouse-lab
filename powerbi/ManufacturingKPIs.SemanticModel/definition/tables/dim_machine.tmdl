@@ -1,0 +1,73 @@
+table dim_machine
+	lineageTag: 91e01008-c9c2-5c38-a99d-35f34eb4b865
+	sourceLineageTag: [dbo].[dim_machine]
+
+	column machine_id
+		dataType: string
+		lineageTag: 901e8831-80a3-5fc0-aa4a-867e8210dd2a
+		sourceLineageTag: machine_id
+		summarizeBy: none
+		sourceColumn: machine_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column machine_name
+		dataType: string
+		lineageTag: f4c8494d-7c39-57fd-963a-4141fafeef39
+		sourceLineageTag: machine_name
+		summarizeBy: none
+		sourceColumn: machine_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column machine_type
+		dataType: string
+		lineageTag: bab1eb99-b008-52d2-8bf1-67fb3b6de35e
+		sourceLineageTag: machine_type
+		summarizeBy: none
+		sourceColumn: machine_type
+
+		annotation SummarizationSetBy = Automatic
+
+	column line
+		dataType: string
+		lineageTag: 16a56bc1-9bd4-5464-8514-8fcb004fa8fb
+		sourceLineageTag: line
+		summarizeBy: none
+		sourceColumn: line
+
+		annotation SummarizationSetBy = Automatic
+
+	column plant
+		dataType: string
+		lineageTag: 749974a8-fa12-5619-86e8-0f8e38f4329a
+		sourceLineageTag: plant
+		summarizeBy: none
+		sourceColumn: plant
+
+		annotation SummarizationSetBy = Automatic
+
+	column ideal_cycle_time_s
+		dataType: int64
+		lineageTag: 32a79531-cd8a-5ba9-8a27-51f5bda21d5e
+		sourceLineageTag: ideal_cycle_time_s
+		summarizeBy: none
+		sourceColumn: ideal_cycle_time_s
+
+		annotation SummarizationSetBy = Automatic
+
+	column commissioned_year
+		dataType: int64
+		lineageTag: 5f5c67f3-154b-5e85-b146-43bdfdff3e3b
+		sourceLineageTag: commissioned_year
+		summarizeBy: none
+		sourceColumn: commissioned_year
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_machine = entity
+		mode: directLake
+		source
+			entityName: dim_machine
+			schemaName: dbo
+			expressionSource: DatabaseQuery

@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "ManufacturingKPIs",
+    "description": "Direct Lake semantic model over the gold tables of lh_manufacturing."
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "2d54d04c-bf65-5e74-ab58-264c5c3a6726"
+  }
+}

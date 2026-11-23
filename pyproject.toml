@@ -1,0 +1,16 @@
+[project]
+name = "fabric-lakehouse-lab"
+version = "1.0.0"
+description = "A Microsoft Fabric style manufacturing lakehouse, built and tested locally from files."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-ra"
+markers = [
+    "lakehouse: needs the lakehouse built by pipelines/run.py (skipped locally when missing, required in CI)",
+]
+filterwarnings = ["ignore::DeprecationWarning"]

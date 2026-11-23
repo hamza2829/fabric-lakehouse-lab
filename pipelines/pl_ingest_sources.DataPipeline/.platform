@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "DataPipeline",
+    "displayName": "pl_ingest_sources",
+    "description": "Copy the nightly ERP, MES and QMS extracts from the plant file share into Files/landing."
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "6081ddbd-8ed2-54b0-96cb-5b9d12029c37"
+  }
+}

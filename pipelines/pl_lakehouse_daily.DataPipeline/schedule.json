@@ -1,0 +1,13 @@
+{
+  "$comment": "Body for the Fabric job scheduler REST call (POST /v1/workspaces/{workspaceId}/items/{itemId}/jobs/Pipeline/schedules). Schedules are not part of the git item definition, so this file is applied by the release step and validated in CI.",
+  "enabled": true,
+  "configuration": {
+    "type": "Daily",
+    "times": [
+      "05:30"
+    ],
+    "startDateTime": "2026-10-01T00:00:00",
+    "endDateTime": "2027-09-30T23:59:00",
+    "localTimeZoneId": "W. Europe Standard Time"
+  }
+}

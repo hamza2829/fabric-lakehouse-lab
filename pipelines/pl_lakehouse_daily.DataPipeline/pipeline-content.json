@@ -1,0 +1,170 @@
+{
+  "properties": {
+    "description": "Daily lakehouse load: land the source extracts, then bronze -> silver -> gold. Scheduled by schedule.json.",
+    "activities": [
+      {
+        "name": "Ingest source extracts",
+        "type": "InvokePipeline",
+        "dependsOn": [],
+        "policy": {
+          "timeout": "0.01:00:00",
+          "retry": 0,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "operationType": "InvokeFabricPipeline",
+          "pipelineId": "6081ddbd-8ed2-54b0-96cb-5b9d12029c37",
+          "workspaceId": "de52839d-6e87-56b4-8a1a-88ee551e28af",
+          "waitOnCompletion": true,
+          "parameters": {
+            "load_date": {
+              "value": "@pipeline().parameters.load_date",
+              "type": "Expression"
+            }
+          }
+        }
+      },
+      {
+        "name": "Bronze ingest",
+        "type": "TridentNotebook",
+        "dependsOn": [
+          {
+            "activity": "Ingest source extracts",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ],
+        "policy": {
+          "timeout": "0.02:00:00",
+          "retry": 1,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "notebookId": "241a8f5d-fca5-5a3c-b1ad-0ffa764c97da",
+          "workspaceId": "de52839d-6e87-56b4-8a1a-88ee551e28af",
+          "parameters": {
+            "load_date": {
+              "value": {
+                "value": "@pipeline().parameters.load_date",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "batch_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "string"
+            }
+          }
+        }
+      },
+      {
+        "name": "Silver clean and conform",
+        "type": "TridentNotebook",
+        "dependsOn": [
+          {
+            "activity": "Bronze ingest",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ],
+        "policy": {
+          "timeout": "0.02:00:00",
+          "retry": 1,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "notebookId": "0d19c501-6d5e-5724-be57-73af5997fa1c",
+          "workspaceId": "de52839d-6e87-56b4-8a1a-88ee551e28af",
+          "parameters": {
+            "load_date": {
+              "value": {
+                "value": "@pipeline().parameters.load_date",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "as_of": {
+              "value": {
+                "value": "@pipeline().parameters.as_of",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "batch_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "string"
+            },
+            "late_threshold_hours": {
+              "value": 48,
+              "type": "int"
+            },
+            "order_late_threshold_hours": {
+              "value": 72,
+              "type": "int"
+            }
+          }
+        }
+      },
+      {
+        "name": "Gold KPIs",
+        "type": "TridentNotebook",
+        "dependsOn": [
+          {
+            "activity": "Silver clean and conform",
+            "dependencyConditions": [
+              "Succeeded"
+            ]
+          }
+        ],
+        "policy": {
+          "timeout": "0.02:00:00",
+          "retry": 1,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "notebookId": "d2f1801b-0395-5661-a379-95db11ac7d9c",
+          "workspaceId": "de52839d-6e87-56b4-8a1a-88ee551e28af",
+          "parameters": {
+            "batch_id": {
+              "value": {
+                "value": "@pipeline().RunId",
+                "type": "Expression"
+              },
+              "type": "string"
+            }
+          }
+        }
+      }
+    ],
+    "parameters": {
+      "load_date": {
+        "type": "string",
+        "defaultValue": "2026-09-30"
+      },
+      "as_of": {
+        "type": "string",
+        "defaultValue": "2026-09-30T23:59:59"
+      }
+    },
+    "annotations": [
+      "lakehouse-lab",
+      "medallion"
+    ]
+  }
+}

@@ -1,0 +1,107 @@
+table fact_complaints
+	lineageTag: e8f7d1ce-e789-583d-99a4-f4bb912cd0d9
+	sourceLineageTag: [dbo].[fact_complaints]
+
+	/// Customer complaints received.
+	measure Complaints = COUNTROWS ( fact_complaints )
+		formatString: #,0
+		displayFolder: Quality
+		lineageTag: 3e9a1ca5-f316-5df0-b4f2-cf9035d07a34
+
+	/// Complaints per delivered order line.
+	measure 'Complaint Rate %' = DIVIDE ( [Complaints], [Delivered Lines] )
+		formatString: 0.00%
+		displayFolder: Quality
+		lineageTag: 204ab37c-586f-5464-9295-44ebaaf99083
+
+	column complaint_id
+		dataType: string
+		isHidden
+		lineageTag: c31582db-52c7-5755-85e5-e3226e6f5efa
+		sourceLineageTag: complaint_id
+		summarizeBy: none
+		sourceColumn: complaint_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_id
+		dataType: string
+		lineageTag: 487aa2d4-4913-5836-8a4d-92e30d11a93f
+		sourceLineageTag: order_id
+		summarizeBy: none
+		sourceColumn: order_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_line
+		dataType: int64
+		lineageTag: fbd9244a-5bee-5799-8536-4a723ce78a61
+		sourceLineageTag: order_line
+		summarizeBy: none
+		sourceColumn: order_line
+
+		annotation SummarizationSetBy = Automatic
+
+	column material_id
+		dataType: string
+		isHidden
+		lineageTag: 470c7dfb-4c38-5253-b0fb-c503aedbc581
+		sourceLineageTag: material_id
+		summarizeBy: none
+		sourceColumn: material_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column complaint_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: d43d64eb-f95d-5289-868b-0534597cc41e
+		sourceLineageTag: complaint_date
+		summarizeBy: none
+		sourceColumn: complaint_date
+
+		annotation SummarizationSetBy = Automatic
+
+	column category
+		dataType: string
+		lineageTag: b051caa9-594b-5969-ab47-f8ea6e34fd1b
+		sourceLineageTag: category
+		summarizeBy: none
+		sourceColumn: category
+
+		annotation SummarizationSetBy = Automatic
+
+	column severity
+		dataType: string
+		lineageTag: 04ebb2af-dd02-525b-9609-8317d3151d0f
+		sourceLineageTag: severity
+		summarizeBy: none
+		sourceColumn: severity
+
+		annotation SummarizationSetBy = Automatic
+
+	column status
+		dataType: string
+		lineageTag: c6b110d8-9df7-5e13-8d5d-da14dfce1897
+		sourceLineageTag: status
+		summarizeBy: none
+		sourceColumn: status
+
+		annotation SummarizationSetBy = Automatic
+
+	column qty_affected
+		dataType: int64
+		formatString: #,0
+		lineageTag: 55ee4dff-ee39-54ad-9aef-161becfdfada
+		sourceLineageTag: qty_affected
+		summarizeBy: sum
+		sourceColumn: qty_affected
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fact_complaints = entity
+		mode: directLake
+		source
+			entityName: fact_complaints
+			schemaName: dbo
+			expressionSource: DatabaseQuery

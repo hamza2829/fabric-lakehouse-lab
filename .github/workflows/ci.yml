@@ -1,0 +1,80 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lakehouse:
+    name: build lakehouse, check quality, test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      REQUIRE_LAKEHOUSE: "1"
+      PYTHONUNBUFFERED: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Cache Delta Lake jars
+        uses: actions/cache@v4
+        with:
+          path: ~/.ivy2
+          key: ivy-spark-3.5.3-delta-3.2.1
+
+      - name: Install
+        run: pip install -r requirements.txt
+
+      - name: Validate pipelines, schedule and notebooks
+        run: python pipelines/validate.py
+
+      - name: Generate synthetic source data
+        run: python data/generate_data.py --seed 42
+
+      - name: Run pipeline pl_lakehouse_daily (copy, bronze, silver, gold)
+        run: python pipelines/run.py pl_lakehouse_daily
+
+      - name: Data quality checks (fails over threshold)
+        run: python -m quality.run_quality
+
+      - name: Render README results block
+        if: always()
+        run: python tools/render_results.py > reports/readme_results.md || true
+
+      - name: Tests
+        run: python -m pytest -v
+
+      - name: Quality report to job summary
+        if: always()
+        run: |
+          if [ -f reports/quality_report.md ]; then cat reports/quality_report.md >> "$GITHUB_STEP_SUMMARY"; fi
+
+      - name: Upload quality report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-report
+          path: |
+            reports/quality_report.md
+            reports/quality_report.json
+            reports/run_summary.json
+            reports/readme_results.md
+          if-no-files-found: warn

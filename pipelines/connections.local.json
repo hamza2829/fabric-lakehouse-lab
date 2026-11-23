@@ -1,0 +1,10 @@
+{
+  "$comment": "Local stand-in for Fabric connections. In Fabric the GUID below is a connection to the plant file share through an on-premises data gateway; locally it points at the generator output.",
+  "connections": {
+    "528844c0-a54b-5557-af21-ab2320e35390": {
+      "displayName": "conn_plant_fileshare",
+      "type": "FileServer",
+      "localPath": "data/raw"
+    }
+  }
+}

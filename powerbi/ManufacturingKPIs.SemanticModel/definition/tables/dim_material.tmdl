@@ -1,0 +1,94 @@
+table dim_material
+	lineageTag: 3e6eaaca-ee57-5534-ae2c-73c61487265e
+	sourceLineageTag: [dbo].[dim_material]
+
+	column material_id
+		dataType: string
+		lineageTag: f5addd52-0896-57fe-96ee-650e38755a73
+		sourceLineageTag: material_id
+		summarizeBy: none
+		sourceColumn: material_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column material_name
+		dataType: string
+		lineageTag: d60bae50-2565-5412-94f9-a311a269536b
+		sourceLineageTag: material_name
+		summarizeBy: none
+		sourceColumn: material_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column material_type
+		dataType: string
+		lineageTag: 72ae63a0-782d-55ab-9386-336eb5b7a9c8
+		sourceLineageTag: material_type
+		summarizeBy: none
+		sourceColumn: material_type
+
+		annotation SummarizationSetBy = Automatic
+
+	column material_group
+		dataType: string
+		lineageTag: 2464133f-3ddc-5ad3-8473-e037b2ddddb6
+		sourceLineageTag: material_group
+		summarizeBy: none
+		sourceColumn: material_group
+
+		annotation SummarizationSetBy = Automatic
+
+	column base_unit
+		dataType: string
+		lineageTag: e713efd5-7543-5b72-827e-2fccb6cc381f
+		sourceLineageTag: base_unit
+		summarizeBy: none
+		sourceColumn: base_unit
+
+		annotation SummarizationSetBy = Automatic
+
+	column net_weight_kg
+		dataType: double
+		formatString: #,0.00
+		lineageTag: 014653e4-58f8-5265-8db6-34c8719971d0
+		sourceLineageTag: net_weight_kg
+		summarizeBy: sum
+		sourceColumn: net_weight_kg
+
+		annotation SummarizationSetBy = Automatic
+
+	column standard_cost_eur
+		dataType: double
+		formatString: #,0.00
+		lineageTag: 6abea564-1147-50a7-9215-a0dc4f21598a
+		sourceLineageTag: standard_cost_eur
+		summarizeBy: sum
+		sourceColumn: standard_cost_eur
+
+		annotation SummarizationSetBy = Automatic
+
+	column list_price_eur
+		dataType: double
+		formatString: #,0.00
+		lineageTag: 81e2bbe8-670a-551e-bf6c-dff42c651276
+		sourceLineageTag: list_price_eur
+		summarizeBy: sum
+		sourceColumn: list_price_eur
+
+		annotation SummarizationSetBy = Automatic
+
+	column supplier_id
+		dataType: string
+		lineageTag: b88723b7-f59d-555a-8b62-756fbb35c203
+		sourceLineageTag: supplier_id
+		summarizeBy: none
+		sourceColumn: supplier_id
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_material = entity
+		mode: directLake
+		source
+			entityName: dim_material
+			schemaName: dbo
+			expressionSource: DatabaseQuery

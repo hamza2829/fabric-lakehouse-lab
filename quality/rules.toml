@@ -1,0 +1,165 @@
+# Data quality rules for the manufacturing lakehouse.
+#
+# Every entity is checked twice: on its bronze table (values exactly as delivered,
+# so the report shows what each source system got wrong) and on its silver table
+# (after cleaning, where error findings must be zero).
+#
+# check types: not_null, unique, range, compare, allowed_values, referential,
+#              not_in_future, late_arrival, freshness
+# `layers` limits a check to "bronze" or "silver" (default: both).
+# `issue` is the category the report counts per source.
+
+as_of = "2026-09-30T23:59:59"
+
+[gate]
+# share of bronze rows with at least one finding, per source system, above which CI fails
+max_bronze_issue_rate = 0.10
+# error severity findings tolerated in silver
+max_silver_errors = 0
+# stale sources are reported; set true to fail on them
+fail_on_freshness = false
+
+[severity.bronze]
+missing_key = "error"
+duplicate = "error"
+orphan_fk = "error"
+out_of_range = "error"
+future_date = "error"
+unit_mismatch = "warn"
+late_arrival = "warn"
+stale_source = "warn"
+
+[severity.silver]
+missing_key = "error"
+duplicate = "error"
+orphan_fk = "error"
+out_of_range = "error"
+future_date = "error"
+unit_mismatch = "error"
+late_arrival = "info"     # kept on purpose and flagged with is_late_arrival
+stale_source = "warn"
+
+# ------------------------------------------------------------------------- ERP
+
+[[entity]]
+name = "suppliers"
+source = "erp"
+bronze = "bronze_erp_suppliers"
+silver = "silver_suppliers"
+checks = [
+  { type = "not_null", columns = ["supplier_id", "supplier_name"], issue = "missing_key" },
+  { type = "unique", columns = ["supplier_id"], issue = "duplicate" },
+  { type = "range", column = "rating", min = 1, max = 5, issue = "out_of_range" },
+]
+
+[[entity]]
+name = "materials"
+source = "erp"
+bronze = "bronze_erp_materials"
+silver = "silver_materials"
+checks = [
+  { type = "not_null", columns = ["material_id"], issue = "missing_key" },
+  { type = "unique", columns = ["material_id"], issue = "duplicate" },
+  { type = "referential", columns = ["supplier_id"], ref = "suppliers", ref_columns = ["supplier_id"], issue = "orphan_fk" },
+  { type = "range", column = "standard_cost_eur", min = 0, issue = "out_of_range" },
+]
+
+[[entity]]
+name = "orders"
+source = "erp"
+bronze = "bronze_erp_orders"
+silver = "silver_orders"
+checks = [
+  { type = "not_null", columns = ["order_id", "order_line", "material_id"], issue = "missing_key" },
+  { type = "unique", columns = ["order_id", "order_line"], issue = "duplicate" },
+  { type = "referential", columns = ["material_id"], ref = "materials", ref_columns = ["material_id"], issue = "orphan_fk" },
+  { type = "range", column = "quantity", min = 0, exclusive_min = true, issue = "out_of_range", layers = ["bronze"] },
+  { type = "range", column = "quantity_pc", min = 0, exclusive_min = true, issue = "out_of_range", layers = ["silver"] },
+  { type = "range", column = "net_value_eur", min = 0, issue = "out_of_range", layers = ["silver"] },
+  { type = "not_in_future", column = "order_date", issue = "future_date" },
+  { type = "allowed_values", column = "unit", values = ["PC"], issue = "unit_mismatch", layers = ["bronze"] },
+  { type = "not_null", columns = ["quantity_pc"], issue = "unit_mismatch", layers = ["silver"] },
+  { type = "late_arrival", recorded = "extracted_at", event = "order_date", max_hours = 72, issue = "late_arrival" },
+  { type = "freshness", column = "extracted_at", max_age_hours = 48, issue = "stale_source" },
+]
+
+# ------------------------------------------------------------------ production
+
+[[entity]]
+name = "machines"
+source = "production"
+bronze = "bronze_prod_machines"
+silver = "silver_machines"
+checks = [
+  { type = "not_null", columns = ["machine_id"], issue = "missing_key" },
+  { type = "unique", columns = ["machine_id"], issue = "duplicate" },
+  { type = "range", column = "ideal_cycle_time_s", min = 0, exclusive_min = true, issue = "out_of_range" },
+]
+
+[[entity]]
+name = "machine_runs"
+source = "production"
+bronze = "bronze_prod_machine_runs"
+silver = "silver_machine_runs"
+checks = [
+  { type = "not_null", columns = ["run_id", "machine_id", "material_id"], issue = "missing_key" },
+  { type = "unique", columns = ["run_id"], issue = "duplicate" },
+  { type = "referential", columns = ["machine_id"], ref = "machines", ref_columns = ["machine_id"], issue = "orphan_fk" },
+  { type = "referential", columns = ["material_id"], ref = "materials", ref_columns = ["material_id"], issue = "orphan_fk" },
+  { type = "compare", left = "downtime", op = "<=", right = "planned_runtime", issue = "out_of_range", layers = ["bronze"] },
+  { type = "compare", left = "downtime_min", op = "<=", right = "planned_runtime_min", issue = "out_of_range", layers = ["silver"] },
+  { type = "range", column = "units_produced", min = 0, issue = "out_of_range" },
+  { type = "not_in_future", column = "start_ts", issue = "future_date" },
+  { type = "allowed_values", column = "time_unit", values = ["min"], issue = "unit_mismatch", layers = ["bronze"] },
+  { type = "not_null", columns = ["planned_runtime_min", "downtime_min"], issue = "unit_mismatch", layers = ["silver"] },
+  { type = "late_arrival", recorded = "recorded_at", event = "end_ts", max_hours = 48, issue = "late_arrival" },
+  { type = "freshness", column = "recorded_at", max_age_hours = 24, issue = "stale_source" },
+]
+
+[[entity]]
+name = "scrap_events"
+source = "production"
+bronze = "bronze_prod_scrap_events"
+silver = "silver_scrap_events"
+checks = [
+  { type = "not_null", columns = ["scrap_id", "run_id"], issue = "missing_key" },
+  { type = "unique", columns = ["scrap_id"], issue = "duplicate" },
+  { type = "referential", columns = ["run_id"], ref = "machine_runs", ref_columns = ["run_id"], issue = "orphan_fk" },
+  { type = "range", column = "scrap_qty", min = 0, exclusive_min = true, issue = "out_of_range", layers = ["bronze"] },
+  { type = "range", column = "scrap_qty_pc", min = 0, exclusive_min = true, issue = "out_of_range", layers = ["silver"] },
+  { type = "allowed_values", column = "unit", values = ["PC"], issue = "unit_mismatch", layers = ["bronze"] },
+  { type = "not_null", columns = ["scrap_qty_pc"], issue = "unit_mismatch", layers = ["silver"] },
+  { type = "late_arrival", recorded = "recorded_at", event = "event_ts", max_hours = 48, issue = "late_arrival" },
+  { type = "freshness", column = "recorded_at", max_age_hours = 24, issue = "stale_source" },
+]
+
+# --------------------------------------------------------------------- quality
+
+[[entity]]
+name = "inspections"
+source = "quality"
+bronze = "bronze_qm_inspections"
+silver = "silver_inspections"
+checks = [
+  { type = "not_null", columns = ["inspection_id", "run_id"], issue = "missing_key" },
+  { type = "unique", columns = ["inspection_id"], issue = "duplicate" },
+  { type = "referential", columns = ["run_id"], ref = "machine_runs", ref_columns = ["run_id"], issue = "orphan_fk" },
+  { type = "compare", left = "defects_found", op = "<=", right = "sample_size", issue = "out_of_range" },
+  { type = "not_in_future", column = "inspected_at", issue = "future_date" },
+  { type = "late_arrival", recorded = "recorded_at", event = "inspected_at", max_hours = 48, issue = "late_arrival" },
+  { type = "freshness", column = "recorded_at", max_age_hours = 24, issue = "stale_source" },
+]
+
+[[entity]]
+name = "complaints"
+source = "quality"
+bronze = "bronze_qm_complaints"
+silver = "silver_complaints"
+checks = [
+  { type = "not_null", columns = ["complaint_id", "order_id", "order_line"], issue = "missing_key" },
+  { type = "unique", columns = ["complaint_id"], issue = "duplicate" },
+  { type = "referential", columns = ["order_id", "order_line"], ref = "orders", ref_columns = ["order_id", "order_line"], issue = "orphan_fk" },
+  { type = "range", column = "qty_affected", min = 0, exclusive_min = true, issue = "out_of_range" },
+  { type = "not_in_future", column = "received_at", issue = "future_date" },
+  { type = "freshness", column = "received_at", max_age_hours = 72, issue = "stale_source" },
+]

@@ -1,0 +1,174 @@
+table fact_orders
+	lineageTag: 18f2cfa5-67c3-5a71-81f3-5432b9e5ea8f
+	sourceLineageTag: [dbo].[fact_orders]
+
+	/// Number of order lines after cleaning.
+	measure 'Order Lines' = COUNTROWS ( fact_orders )
+		formatString: #,0
+		displayFolder: Delivery
+		lineageTag: 7d6611d3-d65b-586a-85bb-0385df3175b0
+
+	/// Net order value in EUR.
+	measure 'Net Sales EUR' = SUM ( fact_orders[net_value_eur] )
+		formatString: #,0.00
+		displayFolder: Delivery
+		lineageTag: 91d1a438-b650-5e38-876f-3f2b6f5b3b39
+
+	/// Order lines with a delivery date.
+	measure 'Delivered Lines' = CALCULATE ( COUNTROWS ( fact_orders ), fact_orders[is_delivered] = TRUE () )
+		formatString: #,0
+		displayFolder: Delivery
+		lineageTag: 6b8f318d-0543-5449-bef0-25f08ac5edc7
+
+	/// Delivered lines with delivered_date on or before requested_date.
+	measure 'On-Time Lines' = CALCULATE ( COUNTROWS ( fact_orders ), fact_orders[is_on_time] = TRUE () )
+		formatString: #,0
+		displayFolder: Delivery
+		lineageTag: c0f7d133-a65d-50e1-91fe-f0b60b8175e0
+
+	/// Share of delivered order lines that arrived on or before the requested date.
+	measure 'On-Time Delivery %' = DIVIDE ( [On-Time Lines], [Delivered Lines] )
+		formatString: 0.0%
+		displayFolder: Delivery
+		lineageTag: 4ca08cc0-dce8-5ce9-810c-61e92e1eb77c
+
+	column order_id
+		dataType: string
+		lineageTag: fb6acf5c-a490-50c9-b57d-55ce2b2841fa
+		sourceLineageTag: order_id
+		summarizeBy: none
+		sourceColumn: order_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_line
+		dataType: int64
+		lineageTag: 78704385-3536-56b5-8869-865fe034031d
+		sourceLineageTag: order_line
+		summarizeBy: none
+		sourceColumn: order_line
+
+		annotation SummarizationSetBy = Automatic
+
+	column customer_id
+		dataType: string
+		isHidden
+		lineageTag: 082c9d19-f42e-5a3a-8017-003aeec3c448
+		sourceLineageTag: customer_id
+		summarizeBy: none
+		sourceColumn: customer_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column material_id
+		dataType: string
+		isHidden
+		lineageTag: 1ca720ff-a180-53c7-9772-5199907ba410
+		sourceLineageTag: material_id
+		summarizeBy: none
+		sourceColumn: material_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column plant
+		dataType: string
+		lineageTag: 965e90b8-c930-5fa4-a27f-2ee29f610c0c
+		sourceLineageTag: plant
+		summarizeBy: none
+		sourceColumn: plant
+
+		annotation SummarizationSetBy = Automatic
+
+	column order_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 8c597854-77d7-5b62-915d-5ff341f3d953
+		sourceLineageTag: order_date
+		summarizeBy: none
+		sourceColumn: order_date
+
+		annotation SummarizationSetBy = Automatic
+
+	column requested_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 43e31929-c981-517f-aad5-5dd5ccf45055
+		sourceLineageTag: requested_date
+		summarizeBy: none
+		sourceColumn: requested_date
+
+		annotation SummarizationSetBy = Automatic
+
+	column delivered_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 1d939549-6d6d-5f2d-94bb-f8648322ec49
+		sourceLineageTag: delivered_date
+		summarizeBy: none
+		sourceColumn: delivered_date
+
+		annotation SummarizationSetBy = Automatic
+
+	column quantity_pc
+		dataType: int64
+		formatString: #,0
+		lineageTag: ce6c165c-f0b1-5cd4-a729-cf17331c18dc
+		sourceLineageTag: quantity_pc
+		summarizeBy: sum
+		sourceColumn: quantity_pc
+
+		annotation SummarizationSetBy = Automatic
+
+	column net_value_eur
+		dataType: double
+		formatString: #,0.00
+		lineageTag: f47a0471-6d4c-53fd-85e8-e318d38d74a0
+		sourceLineageTag: net_value_eur
+		summarizeBy: sum
+		sourceColumn: net_value_eur
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_delivered
+		dataType: boolean
+		lineageTag: 9e68bacb-64ca-58e3-8a4e-c9839e5b4ee8
+		sourceLineageTag: is_delivered
+		summarizeBy: none
+		sourceColumn: is_delivered
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_on_time
+		dataType: boolean
+		lineageTag: 26e2b29c-32e1-5f96-8dbb-9a771e82e5d0
+		sourceLineageTag: is_on_time
+		summarizeBy: none
+		sourceColumn: is_on_time
+
+		annotation SummarizationSetBy = Automatic
+
+	column delivery_delay_days
+		dataType: int64
+		formatString: #,0
+		lineageTag: 888ca4c3-3d2b-58f2-9ec3-dc55ac1db4c2
+		sourceLineageTag: delivery_delay_days
+		summarizeBy: sum
+		sourceColumn: delivery_delay_days
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_late_arrival
+		dataType: boolean
+		lineageTag: 9d98282d-b393-5497-b1c4-640afcebe6ed
+		sourceLineageTag: is_late_arrival
+		summarizeBy: none
+		sourceColumn: is_late_arrival
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fact_orders = entity
+		mode: directLake
+		source
+			entityName: fact_orders
+			schemaName: dbo
+			expressionSource: DatabaseQuery

@@ -1,0 +1,8 @@
+# Spark and Delta Lake run from pip: no Docker, no cluster. Java 17 must be on PATH.
+pyspark==3.5.3
+delta-spark==3.2.1
+# Reads the Delta tables for quality checks and tests without starting Spark.
+deltalake==0.22.3
+pandas==2.2.3
+pyarrow==18.1.0
+pytest==8.3.4

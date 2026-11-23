@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "Notebook",
+    "displayName": "nb_01_bronze_ingest",
+    "description": "Bronze: land raw ERP, production and quality files as Delta tables, untouched."
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "241a8f5d-fca5-5a3c-b1ad-0ffa764c97da"
+  }
+}

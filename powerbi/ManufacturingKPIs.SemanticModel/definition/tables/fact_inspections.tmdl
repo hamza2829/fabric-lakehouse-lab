@@ -1,0 +1,104 @@
+table fact_inspections
+	lineageTag: 6d55f747-70db-5912-b524-d2abcc5bd35a
+	sourceLineageTag: [dbo].[fact_inspections]
+
+	/// Share of in-process inspections with result PASS.
+	measure 'Inspection Pass Rate %' = DIVIDE ( CALCULATE ( COUNTROWS ( fact_inspections ), fact_inspections[is_pass] = TRUE () ), COUNTROWS ( fact_inspections ) )
+		formatString: 0.0%
+		displayFolder: Quality
+		lineageTag: 467332d1-83e7-5805-a442-9cade8db6bff
+
+	column inspection_id
+		dataType: string
+		isHidden
+		lineageTag: 18a504e9-fdfd-5ede-a127-0be47214a1e2
+		sourceLineageTag: inspection_id
+		summarizeBy: none
+		sourceColumn: inspection_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column run_id
+		dataType: string
+		isHidden
+		lineageTag: c46cddbc-2d42-52e1-b9f8-c5b075f6b160
+		sourceLineageTag: run_id
+		summarizeBy: none
+		sourceColumn: run_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column machine_id
+		dataType: string
+		isHidden
+		lineageTag: 9d56068b-5e9d-5a34-90fd-0a1c6b06e666
+		sourceLineageTag: machine_id
+		summarizeBy: none
+		sourceColumn: machine_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column material_id
+		dataType: string
+		isHidden
+		lineageTag: 9bf95fa7-866b-58f5-9a90-a0dd46b41d7d
+		sourceLineageTag: material_id
+		summarizeBy: none
+		sourceColumn: material_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column inspection_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: d12c6295-9223-5f74-a88a-28ff9da41285
+		sourceLineageTag: inspection_date
+		summarizeBy: none
+		sourceColumn: inspection_date
+
+		annotation SummarizationSetBy = Automatic
+
+	column sample_size
+		dataType: int64
+		formatString: #,0
+		lineageTag: 4d2b342c-a776-5eb7-a92e-7b7b6b87c981
+		sourceLineageTag: sample_size
+		summarizeBy: sum
+		sourceColumn: sample_size
+
+		annotation SummarizationSetBy = Automatic
+
+	column defects_found
+		dataType: int64
+		formatString: #,0
+		lineageTag: cd56411c-df43-5b65-8115-cc2aa5441cca
+		sourceLineageTag: defects_found
+		summarizeBy: sum
+		sourceColumn: defects_found
+
+		annotation SummarizationSetBy = Automatic
+
+	column result
+		dataType: string
+		lineageTag: b002b710-8888-50c3-904d-088d4086aca7
+		sourceLineageTag: result
+		summarizeBy: none
+		sourceColumn: result
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_pass
+		dataType: boolean
+		lineageTag: 79638699-2121-54fa-b531-3353df1c04c7
+		sourceLineageTag: is_pass
+		summarizeBy: none
+		sourceColumn: is_pass
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fact_inspections = entity
+		mode: directLake
+		source
+			entityName: fact_inspections
+			schemaName: dbo
+			expressionSource: DatabaseQuery

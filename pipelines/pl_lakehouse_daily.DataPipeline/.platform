@@ -1,0 +1,12 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "DataPipeline",
+    "displayName": "pl_lakehouse_daily",
+    "description": "Daily load: ingest sources, then bronze, silver and gold notebooks."
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "8ee84436-86e0-5264-a47b-aab4332927c2"
+  }
+}

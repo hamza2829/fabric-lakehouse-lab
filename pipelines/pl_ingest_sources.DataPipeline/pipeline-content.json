@@ -1,0 +1,230 @@
+{
+  "properties": {
+    "description": "Copy the nightly ERP, MES (production) and QMS (quality) extracts from the plant file share into Files/landing/<source>/<load_date>/.",
+    "activities": [
+      {
+        "name": "Copy ERP extracts",
+        "type": "Copy",
+        "dependsOn": [],
+        "policy": {
+          "timeout": "0.01:00:00",
+          "retry": 2,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "source": {
+            "type": "BinarySource",
+            "storeSettings": {
+              "type": "FileServerReadSettings",
+              "recursive": false,
+              "wildcardFileName": "*.csv"
+            },
+            "formatSettings": {
+              "type": "BinaryReadSettings"
+            },
+            "datasetSettings": {
+              "annotations": [],
+              "type": "Binary",
+              "typeProperties": {
+                "location": {
+                  "type": "FileServerLocation",
+                  "folderPath": "erp"
+                }
+              },
+              "externalReferences": {
+                "connection": "528844c0-a54b-5557-af21-ab2320e35390"
+              }
+            }
+          },
+          "sink": {
+            "type": "BinarySink",
+            "storeSettings": {
+              "type": "LakehouseWriteSettings",
+              "copyBehavior": "PreserveHierarchy"
+            },
+            "datasetSettings": {
+              "annotations": [],
+              "linkedService": {
+                "name": "lh_manufacturing",
+                "properties": {
+                  "annotations": [],
+                  "type": "Lakehouse",
+                  "typeProperties": {
+                    "workspaceId": "de52839d-6e87-56b4-8a1a-88ee551e28af",
+                    "artifactId": "aff243db-abb3-5980-8c23-f25d978e466b",
+                    "rootFolder": "Files"
+                  }
+                }
+              },
+              "type": "Binary",
+              "typeProperties": {
+                "location": {
+                  "type": "LakehouseLocation",
+                  "folderPath": {
+                    "value": "@concat('landing/erp/', pipeline().parameters.load_date)",
+                    "type": "Expression"
+                  }
+                }
+              }
+            }
+          },
+          "enableStaging": false
+        }
+      },
+      {
+        "name": "Copy production extracts",
+        "type": "Copy",
+        "dependsOn": [],
+        "policy": {
+          "timeout": "0.01:00:00",
+          "retry": 2,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "source": {
+            "type": "BinarySource",
+            "storeSettings": {
+              "type": "FileServerReadSettings",
+              "recursive": false,
+              "wildcardFileName": "*.*"
+            },
+            "formatSettings": {
+              "type": "BinaryReadSettings"
+            },
+            "datasetSettings": {
+              "annotations": [],
+              "type": "Binary",
+              "typeProperties": {
+                "location": {
+                  "type": "FileServerLocation",
+                  "folderPath": "production"
+                }
+              },
+              "externalReferences": {
+                "connection": "528844c0-a54b-5557-af21-ab2320e35390"
+              }
+            }
+          },
+          "sink": {
+            "type": "BinarySink",
+            "storeSettings": {
+              "type": "LakehouseWriteSettings",
+              "copyBehavior": "PreserveHierarchy"
+            },
+            "datasetSettings": {
+              "annotations": [],
+              "linkedService": {
+                "name": "lh_manufacturing",
+                "properties": {
+                  "annotations": [],
+                  "type": "Lakehouse",
+                  "typeProperties": {
+                    "workspaceId": "de52839d-6e87-56b4-8a1a-88ee551e28af",
+                    "artifactId": "aff243db-abb3-5980-8c23-f25d978e466b",
+                    "rootFolder": "Files"
+                  }
+                }
+              },
+              "type": "Binary",
+              "typeProperties": {
+                "location": {
+                  "type": "LakehouseLocation",
+                  "folderPath": {
+                    "value": "@concat('landing/production/', pipeline().parameters.load_date)",
+                    "type": "Expression"
+                  }
+                }
+              }
+            }
+          },
+          "enableStaging": false
+        }
+      },
+      {
+        "name": "Copy quality extracts",
+        "type": "Copy",
+        "dependsOn": [],
+        "policy": {
+          "timeout": "0.01:00:00",
+          "retry": 2,
+          "retryIntervalInSeconds": 30,
+          "secureOutput": false,
+          "secureInput": false
+        },
+        "typeProperties": {
+          "source": {
+            "type": "BinarySource",
+            "storeSettings": {
+              "type": "FileServerReadSettings",
+              "recursive": false,
+              "wildcardFileName": "*.json*"
+            },
+            "formatSettings": {
+              "type": "BinaryReadSettings"
+            },
+            "datasetSettings": {
+              "annotations": [],
+              "type": "Binary",
+              "typeProperties": {
+                "location": {
+                  "type": "FileServerLocation",
+                  "folderPath": "quality"
+                }
+              },
+              "externalReferences": {
+                "connection": "528844c0-a54b-5557-af21-ab2320e35390"
+              }
+            }
+          },
+          "sink": {
+            "type": "BinarySink",
+            "storeSettings": {
+              "type": "LakehouseWriteSettings",
+              "copyBehavior": "PreserveHierarchy"
+            },
+            "datasetSettings": {
+              "annotations": [],
+              "linkedService": {
+                "name": "lh_manufacturing",
+                "properties": {
+                  "annotations": [],
+                  "type": "Lakehouse",
+                  "typeProperties": {
+                    "workspaceId": "de52839d-6e87-56b4-8a1a-88ee551e28af",
+                    "artifactId": "aff243db-abb3-5980-8c23-f25d978e466b",
+                    "rootFolder": "Files"
+                  }
+                }
+              },
+              "type": "Binary",
+              "typeProperties": {
+                "location": {
+                  "type": "LakehouseLocation",
+                  "folderPath": {
+                    "value": "@concat('landing/quality/', pipeline().parameters.load_date)",
+                    "type": "Expression"
+                  }
+                }
+              }
+            }
+          },
+          "enableStaging": false
+        }
+      }
+    ],
+    "parameters": {
+      "load_date": {
+        "type": "string",
+        "defaultValue": "2026-09-30"
+      }
+    },
+    "annotations": [
+      "lakehouse-lab",
+      "ingest"
+    ]
+  }
+}

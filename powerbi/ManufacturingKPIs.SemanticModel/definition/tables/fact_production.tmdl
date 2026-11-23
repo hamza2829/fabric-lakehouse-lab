@@ -1,0 +1,194 @@
+table fact_production
+	lineageTag: b6f4bc90-a7b6-5e05-a79f-94f5995fcd10
+	sourceLineageTag: [dbo].[fact_production]
+
+	/// Units produced over all machine runs.
+	measure 'Units Produced' = SUM ( fact_production[units_produced] )
+		formatString: #,0
+		displayFolder: Production
+		lineageTag: edf49467-c614-56ab-bbbc-970e4b669984
+
+	/// Scrapped units; scrap booked in KG is converted to pieces in silver.
+	measure 'Scrap Units' = SUM ( fact_production[scrap_units] )
+		formatString: #,0
+		displayFolder: Production
+		lineageTag: f926cb03-4b3e-5aab-8dcd-45c945a0a456
+
+	/// Scrapped units divided by units produced.
+	measure 'Scrap Rate %' = DIVIDE ( [Scrap Units], [Units Produced] )
+		formatString: 0.00%
+		displayFolder: Production
+		lineageTag: b54d4a4d-0984-5376-8226-06b617d79062
+
+	/// Run time divided by planned production time.
+	measure 'Availability %' = DIVIDE ( SUM ( fact_production[run_time_min] ), SUM ( fact_production[planned_runtime_min] ) )
+		formatString: 0.0%
+		displayFolder: OEE
+		lineageTag: 96babdf3-f498-5c3b-8702-826d6d2bcb4d
+
+	/// Ideal cycle time x units produced, divided by run time.
+	measure 'Performance %' = DIVIDE ( SUM ( fact_production[ideal_run_time_min] ), SUM ( fact_production[run_time_min] ) )
+		formatString: 0.0%
+		displayFolder: OEE
+		lineageTag: d2c0df38-0c13-5002-be6b-f4691f7d5736
+
+	/// Good units divided by units produced.
+	measure 'Quality Rate %' = DIVIDE ( SUM ( fact_production[good_units] ), [Units Produced] )
+		formatString: 0.0%
+		displayFolder: OEE
+		lineageTag: 7d3697ec-cce8-5a3a-8d7b-7e776293b811
+
+	/// Availability x Performance x Quality rate.
+	measure 'OEE %' =
+			VAR _availability = [Availability %]
+			VAR _performance = [Performance %]
+			VAR _quality = [Quality Rate %]
+			RETURN
+			    _availability * _performance * _quality
+		formatString: 0.0%
+		displayFolder: OEE
+		lineageTag: 47c9e8a0-c2ff-552e-b324-7ac3e6a85b6c
+
+	column run_id
+		dataType: string
+		isHidden
+		lineageTag: 74319dbd-82d5-5c29-a2b6-e615c36da426
+		sourceLineageTag: run_id
+		summarizeBy: none
+		sourceColumn: run_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column machine_id
+		dataType: string
+		isHidden
+		lineageTag: 221bea32-d189-5b07-8f1b-521f350385e9
+		sourceLineageTag: machine_id
+		summarizeBy: none
+		sourceColumn: machine_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column material_id
+		dataType: string
+		isHidden
+		lineageTag: 6d1fb55a-9f63-5770-abb5-d0df77bd8143
+		sourceLineageTag: material_id
+		summarizeBy: none
+		sourceColumn: material_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column shift
+		dataType: string
+		lineageTag: 984aad7a-90ef-5e3a-b34e-83dbcd294729
+		sourceLineageTag: shift
+		summarizeBy: none
+		sourceColumn: shift
+
+		annotation SummarizationSetBy = Automatic
+
+	column run_date
+		dataType: dateTime
+		formatString: yyyy-mm-dd
+		lineageTag: 4747ede3-57b1-529a-bb73-76867b2cb095
+		sourceLineageTag: run_date
+		summarizeBy: none
+		sourceColumn: run_date
+
+		annotation SummarizationSetBy = Automatic
+
+	column planned_runtime_min
+		dataType: double
+		formatString: #,0.00
+		lineageTag: d3357985-f363-5a3d-91f8-1886998d8543
+		sourceLineageTag: planned_runtime_min
+		summarizeBy: sum
+		sourceColumn: planned_runtime_min
+
+		annotation SummarizationSetBy = Automatic
+
+	column downtime_min
+		dataType: double
+		formatString: #,0.00
+		lineageTag: 1c682e0d-5202-51c5-b862-7f213125ff0e
+		sourceLineageTag: downtime_min
+		summarizeBy: sum
+		sourceColumn: downtime_min
+
+		annotation SummarizationSetBy = Automatic
+
+	column run_time_min
+		dataType: double
+		formatString: #,0.00
+		lineageTag: de859dff-1994-57f6-afe5-39ff50a6e2c0
+		sourceLineageTag: run_time_min
+		summarizeBy: sum
+		sourceColumn: run_time_min
+
+		annotation SummarizationSetBy = Automatic
+
+	column ideal_cycle_time_s
+		dataType: int64
+		lineageTag: d9a78529-aa6d-5a37-af4a-920354d406ee
+		sourceLineageTag: ideal_cycle_time_s
+		summarizeBy: none
+		sourceColumn: ideal_cycle_time_s
+
+		annotation SummarizationSetBy = Automatic
+
+	column ideal_run_time_min
+		dataType: double
+		formatString: #,0.00
+		lineageTag: e5551a05-fa1e-5202-8a4c-b54ed9f1a7f8
+		sourceLineageTag: ideal_run_time_min
+		summarizeBy: sum
+		sourceColumn: ideal_run_time_min
+
+		annotation SummarizationSetBy = Automatic
+
+	column units_produced
+		dataType: int64
+		formatString: #,0
+		lineageTag: 2a0d4ba8-23f1-59ee-befd-ed4646c82923
+		sourceLineageTag: units_produced
+		summarizeBy: sum
+		sourceColumn: units_produced
+
+		annotation SummarizationSetBy = Automatic
+
+	column scrap_units
+		dataType: int64
+		formatString: #,0
+		lineageTag: 1c78db27-e2eb-56c3-9aa4-9d4db736d9df
+		sourceLineageTag: scrap_units
+		summarizeBy: sum
+		sourceColumn: scrap_units
+
+		annotation SummarizationSetBy = Automatic
+
+	column good_units
+		dataType: int64
+		formatString: #,0
+		lineageTag: 3352e3fa-4939-535a-9d16-91583ba48adc
+		sourceLineageTag: good_units
+		summarizeBy: sum
+		sourceColumn: good_units
+
+		annotation SummarizationSetBy = Automatic
+
+	column is_late_arrival
+		dataType: boolean
+		lineageTag: 070c2a82-6e3f-5308-99d0-c1a888ca992d
+		sourceLineageTag: is_late_arrival
+		summarizeBy: none
+		sourceColumn: is_late_arrival
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fact_production = entity
+		mode: directLake
+		source
+			entityName: fact_production
+			schemaName: dbo
+			expressionSource: DatabaseQuery

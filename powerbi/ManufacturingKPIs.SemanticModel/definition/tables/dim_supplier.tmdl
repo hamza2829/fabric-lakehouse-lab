@@ -1,0 +1,57 @@
+table dim_supplier
+	lineageTag: 5cbdffe5-5e46-524b-929f-8781c9497441
+	sourceLineageTag: [dbo].[dim_supplier]
+
+	column supplier_id
+		dataType: string
+		lineageTag: 78898a00-fa9e-5de7-a393-fb854469e6ab
+		sourceLineageTag: supplier_id
+		summarizeBy: none
+		sourceColumn: supplier_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column supplier_name
+		dataType: string
+		lineageTag: bf81fca5-7213-5291-8090-e32ade589978
+		sourceLineageTag: supplier_name
+		summarizeBy: none
+		sourceColumn: supplier_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column country_code
+		dataType: string
+		lineageTag: 8c1533a0-1514-57c0-9fcd-0dfaf6d17169
+		sourceLineageTag: country_code
+		summarizeBy: none
+		sourceColumn: country_code
+
+		annotation SummarizationSetBy = Automatic
+
+	column rating
+		dataType: double
+		formatString: #,0.00
+		lineageTag: 15830809-3ce9-52d7-8214-859211d267d6
+		sourceLineageTag: rating
+		summarizeBy: average
+		sourceColumn: rating
+
+		annotation SummarizationSetBy = Automatic
+
+	column lead_time_days
+		dataType: int64
+		formatString: #,0
+		lineageTag: c31e1654-415a-521d-b310-0debe5997221
+		sourceLineageTag: lead_time_days
+		summarizeBy: average
+		sourceColumn: lead_time_days
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dim_supplier = entity
+		mode: directLake
+		source
+			entityName: dim_supplier
+			schemaName: dbo
+			expressionSource: DatabaseQuery
